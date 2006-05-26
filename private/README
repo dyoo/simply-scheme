@@ -1,0 +1,141 @@
+Converting simply.scm to simply-scheme.ss.
+
+Danny Yoo (dyoo@hkn.eecs.berkeley.edu)
+
+
+There are two classes of names in simply.scm:
+
+    1.  Defined and set!-ed names that don't collide with any of the
+        existing definitions in mzscheme.
+
+    2.  Defined and set!-ed names that do collide with existing
+        definitions in mzscheme.
+
+Class 2 presents a big problem when we want to convert simply.scm to a
+mzscheme Module, because we're not allowed to re-define or re-set!  a
+name from our initial import.  We need to somehow transform all the
+names from Class 2 to Class 1.
+
+We can simplify the problem by reducing all the expressions to
+mzscheme primitive syntax, by using:
+
+    (syntax-object->datum (expand expr))
+
+which means that the resulting datums will have a nice simple form:
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+top-level-expr is one of
+  general-top-level-expr
+  (module identifier name (#%plain-module-begin module-level-expr ...))
+  (begin top-level-expr ...)
+
+module-level-expr is one of
+  general-top-level-expr
+  (provide provide-spec ...)
+  (begin module-level-expr ...)
+
+general-top-level-expr is one of
+  expr
+  (define-values (variable ...) expr)
+  (define-syntaxes (variable ...) expr)
+  (require require-spec ...)
+  (require-for-syntax require-spec ...)
+
+expr is one of
+  variable
+  (lambda formals expr ...1)
+  (case-lambda (formals expr ...1) ...)
+  (if expr expr)
+  (if expr expr expr)
+  (begin expr ...1)
+  (begin0 expr expr ...)
+  (let-values (((variable ...) expr) ...) expr ...1)
+  (letrec-values (((variable ...) expr) ...) expr ...1)
+  (set! variable expr)
+  (quote datum)
+  (quote-syntax datum)
+  (with-continuation-mark expr expr expr)
+  (#%app expr ...1)
+  (#%datum . datum)
+  (#%top . variable)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(This comes from http://download.plt-scheme.org/doc/209/html/mzscheme/mzscheme-Z-H-12.html#node_sec_12.6.1)
+
+
+
+So here's a plan to convert simply.scm to simply-scheme.ss:
+
+    1.  Collect list of all variables names created with
+        define-values, as well as the free variables assigned by set!.
+        Let's define this as our renamed-variables.  Once we have this
+        set, we create new defined variables with the appropriate
+        prefixes.
+
+        For example, if we know that number->string is free, then
+        we'll add the following to our prologue:
+
+        (define simply-scheme:number->string number->string)
+
+	TODO: we don't know off-hand which variable names are really
+	primitive.  Is there a good way of finding this out?
+
+
+    2.  Transform all define-values to set!'s.
+
+        For example:
+
+        (define-values (number->string)
+	  (let ((old-ns number->string)
+		(string? string?))
+	    (lambda args
+	      (if (string? (car args))
+		  (car args)
+		  (apply old-ns args)))))
+
+	is translated to:
+
+        (set! number->string
+	  (let ((old-ns number->string)
+		(string? string?))
+	    (lambda args
+	      (if (string? (car args))
+		  (car args)
+		  (apply old-ns args)))))
+
+
+
+    3.  Transform all references to free variables, as well as set!'s,
+        to the renamed-vars.
+
+	For example:
+
+        (set! simply-scheme:number->string
+	  (let ((old-ns simply-scheme:number->string)
+		(string? string?))
+	    (lambda args
+	      (if (string? (car args))
+		  (car args)
+		  (apply old-ns args)))))
+
+
+    4.  Finally, add an epilogue that remaps the renamed-vars back to
+        their original free names.
+
+	For example:
+
+	(provide (rename simply-scheme:number->string number->string))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+I also had to manually add a reference to trace.ss to provide TRACE
+and UNTRACE.  I modified simply-scheme.ss manually with the following:
+
+    (require (lib "trace.ss"))
+
+in the prologue, and
+
+    (provide (all-from (lib "trace.ss")))
+
+in the epilogue.
