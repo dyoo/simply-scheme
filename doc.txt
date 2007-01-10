@@ -16,7 +16,7 @@ The original source of these programs can be found from the FTP site:
 
 These definitions can also be required by using:
 
-    (require (lib "simply-scheme.ss" "simply-scheme"))
+    (require (planet "simply-scheme.ss" ("dyoo" "simply-scheme.plt")))
 
 The definitions in _simply-scheme.ss_ should correspond to those in
 simply.scm version 3.13 (8/11.98).
