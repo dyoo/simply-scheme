@@ -59,6 +59,10 @@
       (class (drscheme:language:module-based-language->language-mixin
               (drscheme:language:simple-module-based-language->module-based-language-mixin
                language-base%))
+        ;; We need to flag use-namespace-require/copy to prevent
+        ;; a weird bug.  See:
+        ;; http://list.cs.brown.edu/pipermail/plt-scheme/2007-February/016390.html
+        (define/override (use-namespace-require/copy?) #t)
         (super-instantiate ())))
     
     
