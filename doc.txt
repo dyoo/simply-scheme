@@ -1,5 +1,7 @@
 Simply Scheme Support Definitions
 
+Ported by Danny Yoo (dyoo@hkn.eecs.berkeley.edu)
+
 
 This collection adds a new _Simply Scheme_ teaching language into
 DrScheme called _Simply Scheme_ and is used in the textbook:
@@ -510,3 +512,15 @@ Is the argument a word? (Note: numbers are words.)
 
 > write
 Print the argument in machine-readable form.
+
+
+
+Thanks
+======
+
+Thanks to my professors at UC Berkeley, especially Brian Harvey and
+Dan Garcia.  Yes, CS61A was the best computer science class I've taken.
+
+Thanks to Reid Oda for catching a very ugly bug involving namespaces,
+and Matthew Flatt for telling me how to fix it.  See 
+http://list.cs.brown.edu/pipermail/plt-scheme/2007-February/016387.html
