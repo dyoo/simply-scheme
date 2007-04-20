@@ -1,6 +1,7 @@
 (module info (lib "infotab.ss" "setup")
   (define name "Simply Scheme")
   (define blurb '("Definitions to support programs written for Simply Scheme."))
+  (define version "1.1")
   (define doc.txt "doc.txt")
   (define categories '(misc))
   (define primary-file "simply-scheme.ss")
