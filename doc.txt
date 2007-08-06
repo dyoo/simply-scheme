@@ -214,7 +214,7 @@ Is the first argument greater than or equal to the second?
 
 
 > abs
-Return the absolute avlue of the argument.
+Return the absolute value of the argument.
 
 > accumulate
 Apply a combining function to all the elements.
