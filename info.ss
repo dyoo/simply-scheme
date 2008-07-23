@@ -1,11 +1,13 @@
 (module info (lib "infotab.ss" "setup")
   (define name "Simply Scheme")
   (define blurb '("Definitions to support programs written for Simply Scheme."))
-  (define version "1.1")
+  (define release-notes '((p "Stripped out use of set-cdr! for 4.0 compatibility.  Stripped out remove! in favor of remove.")))
+  (define version "1.2")
   (define doc.txt "doc.txt")
   (define categories '(misc))
   (define primary-file "simply-scheme.ss")
-  
+  (define required-core-version "4.0")
+  (define repositories (list "4.x"))
   (define compile-omit-files (list "private/check-bound.ss" 
 				   "private/simply.scm" 
 				   "private/convert-simply.scm"
