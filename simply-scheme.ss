@@ -1264,36 +1264,39 @@
         port))))
 
 (define-values
-  (remove!)
+  (remove)
   (let-values (((null?) null?)
                ((cdr) cdr)
                ((eq?) eq?)
-               ((set-cdr!) set-cdr!)
                ((car) car))
     (lambda (thing lst)
-      (letrec-values (((r!)
+      (letrec-values (((r)
                        (lambda (prev)
                          (if (null? (cdr prev))
                            (begin lst)
                            (if (eq? thing (car (cdr prev)))
-                             (begin (set-cdr! prev (cdr (cdr prev))) lst)
-                             (begin (r! (cdr prev))))))))
+                             (begin (cons (car prev)
+                                          (cdr (cdr prev))))
+                             (begin (cons (car prev)
+                                          (r (cdr prev)))))))))
         (if (null? lst)
           (begin lst)
-          (if (eq? thing (car lst)) (begin (cdr lst)) (begin (r! lst))))))))
+          (if (eq? thing (car lst)) 
+              (begin (cdr lst))
+              (begin (r lst))))))))
 
 (set! simply-scheme:close-input-port
-  (let-values (((cip) simply-scheme:close-input-port) ((remove!) remove!))
+  (let-values (((cip) simply-scheme:close-input-port) ((remove) remove))
     (lambda (port)
       (set! *the-open-inports*
-        (#%app remove! port (#%top . *the-open-inports*)))
+        (#%app remove port (#%top . *the-open-inports*)))
       (cip port))))
 
 (set! simply-scheme:close-output-port
-  (let-values (((cop) simply-scheme:close-output-port) ((remove!) remove!))
+  (let-values (((cop) simply-scheme:close-output-port) ((remove) remove))
     (lambda (port)
       (set! *the-open-outports*
-        (#%app remove! port (#%top . *the-open-outports*)))
+        (#%app remove port (#%top . *the-open-outports*)))
       (cop port))))
 
 (define-values
@@ -1639,7 +1642,7 @@
  (rename simply-scheme:read-string read-string)
  reduce
  (rename simply-scheme:remainder remainder)
- remove!
+ remove
  repeated
  (rename simply-scheme:round round)
  se
