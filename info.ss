@@ -8,9 +8,7 @@
   (define primary-file "simply-scheme.ss")
   (define required-core-version "4.0")
   (define repositories (list "4.x"))
-  (define compile-omit-files (list "private/check-bound.ss" 
-				   "private/simply.scm" 
-				   "private/convert-simply.scm"
+  (define compile-omit-paths (list "private" 
 				   "make-distribution.ss"))
   
   (define tools (list (list "tool.ss")))
