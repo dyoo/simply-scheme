@@ -4,7 +4,7 @@
 (define release-notes '((p "Ported to Racket 5.1.1")))
 (define version "2.0")
 (define categories '(misc))
-(define primary-file "simply-scheme.rkt")
+(define primary-file "main.rkt")
 (define required-core-version "5.1.1")
 (define repositories (list "4.x"))
 
