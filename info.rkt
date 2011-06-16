@@ -7,6 +7,10 @@
 (define primary-file "simply-scheme.rkt")
 (define required-core-version "5.1.1")
 (define repositories (list "4.x"))
+
+;; Ignore these paths: they're here just for historical curiosity.
 (define compile-omit-paths (list "private" "make-distribution.rkt"))
-(define tools (list (list "tool.rkt")))
-(define tool-names (list "Simply Scheme"))
+
+
+(define drracket-name  "Simply Scheme")
+(define drracket-tools (list (list "tool.rkt")))

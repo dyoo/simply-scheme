@@ -61,27 +61,29 @@
 (define simply-scheme:vector-ref vector-ref)
 (define simply-scheme:vector-set! vector-set!)
 (define simply-scheme:zero? zero?)
-(if (simply-scheme:equal? 'foo (symbol->string 'foo))
-  (error "Simply.scm already loaded!!")
-  #f)
 
-(if (char=? #\+ (string-ref (simply-scheme:number->string 1.0) 0))
-  (let-values (((old-ns) simply-scheme:number->string)
-               ((char=?) char=?)
-               ((string-ref) string-ref)
-               ((substring) substring)
-               ((string-length) string-length))
-    (set! simply-scheme:number->string
-      (lambda args
-        (let-values (((result) (apply old-ns args)))
-          (if (char=? #\+ (string-ref result 0))
-            (substring result 1 (string-length result))
-            result)))))
-  'no-problem)
+
+(void (if (simply-scheme:equal? 'foo (symbol->string 'foo))
+          (error "Simply.scm already loaded!!")
+          #f))
+
+(void (if (char=? #\+ (string-ref (simply-scheme:number->string 1.0) 0))
+          (let-values (((old-ns) simply-scheme:number->string)
+                       ((char=?) char=?)
+                       ((string-ref) string-ref)
+                       ((substring) substring)
+                       ((string-length) string-length))
+            (set! simply-scheme:number->string
+                  (lambda args
+                    (let-values (((result) (apply old-ns args)))
+                      (if (char=? #\+ (string-ref result 0))
+                          (substring result 1 (string-length result))
+                          result)))))
+          'no-problem))
 
 (set! simply-scheme:number->string
-  (let-values (((old-ns) simply-scheme:number->string) ((string?) string?))
-    (lambda args (if (string? (car args)) (car args) (apply old-ns args)))))
+      (let-values (((old-ns) simply-scheme:number->string) ((string?) string?))
+        (lambda args (if (string? (car args)) (car args) (apply old-ns args)))))
 
 (define-values
   (whoops)
@@ -97,46 +99,48 @@
       (lambda (string . args)
         (apply error (cons string (map error-printform args)))))))
 
-(if (if (inexact? (simply-scheme:round (simply-scheme:sqrt 2))) (exact? 1) #f)
-  (let-values (((old-round) simply-scheme:round)
-               ((inexact->exact) inexact->exact))
-    (set! simply-scheme:round
-      (lambda (number) (inexact->exact (old-round number)))))
-  'no-problem)
+(void
+ (if (if (inexact? (simply-scheme:round (simply-scheme:sqrt 2))) (exact? 1) #f)
+     (let-values (((old-round) simply-scheme:round)
+                  ((inexact->exact) inexact->exact))
+       (set! simply-scheme:round
+             (lambda (number) (inexact->exact (old-round number)))))
+     'no-problem))
 
-(if (inexact? (simply-scheme:* 0.25 4))
-  (let-values (((rem) simply-scheme:remainder)
-               ((quo) simply-scheme:quotient)
-               ((inexact->exact) inexact->exact)
-               ((integer?) simply-scheme:integer?))
-    (set! simply-scheme:remainder
-      (lambda (x y)
-        (rem
-         (if (integer? x) (inexact->exact x) x)
-         (if (integer? y) (inexact->exact y) y))))
-    (set! simply-scheme:quotient
-      (lambda (x y)
-        (quo
-         (if (integer? x) (inexact->exact x) x)
-         (if (integer? y) (inexact->exact y) y)))))
-  'done)
+(void (if (inexact? (simply-scheme:* 0.25 4))
+          (let-values (((rem) simply-scheme:remainder)
+                       ((quo) simply-scheme:quotient)
+                       ((inexact->exact) inexact->exact)
+                       ((integer?) simply-scheme:integer?))
+            (set! simply-scheme:remainder
+                  (lambda (x y)
+                    (rem
+                     (if (integer? x) (inexact->exact x) x)
+                     (if (integer? y) (inexact->exact y) y))))
+            (set! simply-scheme:quotient
+                  (lambda (x y)
+                    (quo
+                     (if (integer? x) (inexact->exact x) x)
+                     (if (integer? y) (inexact->exact y) y)))))
+          'done))
+
 
 (set! simply-scheme:random
-  (let-values (((*seed*) 1)
-               ((quotient) simply-scheme:quotient)
-               ((modulo) simply-scheme:modulo)
-               ((+) simply-scheme:+)
-               ((-) simply-scheme:-)
-               ((*) simply-scheme:*)
-               ((>) simply-scheme:>))
-    (lambda (x)
-      (let-values (((hi) (quotient *seed* 127773)))
-        (let-values (((low) (modulo *seed* 127773)))
-          (let-values (((test) (- (* 16807 low) (* 2836 hi))))
-            (if (> test 0)
-              (set! *seed* test)
-              (set! *seed* (#%app + test (#%datum . 2147483647)))))))
-      (modulo *seed* x))))
+      (let-values (((*seed*) 1)
+                   ((quotient) simply-scheme:quotient)
+                   ((modulo) simply-scheme:modulo)
+                   ((+) simply-scheme:+)
+                   ((-) simply-scheme:-)
+                   ((*) simply-scheme:*)
+                   ((>) simply-scheme:>))
+        (lambda (x)
+          (let-values (((hi) (quotient *seed* 127773)))
+            (let-values (((low) (modulo *seed* 127773)))
+              (let-values (((test) (- (* 16807 low) (* 2836 hi))))
+                (if (> test 0)
+                    (set! *seed* test)
+                    (set! *seed* (#%app + test (#%datum . 2147483647)))))))
+          (modulo *seed* x))))
 
 (define-values
   (word?)
@@ -146,9 +150,9 @@
     (lambda (x)
       (let-values (((or-part) (symbol? x)))
         (if or-part
-          or-part
-          (let-values (((or-part) (number? x)))
-            (if or-part or-part (string? x))))))))
+            or-part
+            (let-values (((or-part) (number? x)))
+              (if or-part or-part (string? x))))))))
 
 (define-values
   (sentence?)
@@ -160,11 +164,11 @@
     (letrec-values (((list-of-words?)
                      (lambda (l)
                        (if (null? l)
-                         (begin #t)
-                         (if (pair? l)
-                           (begin
-                             (if (word? (car l)) (list-of-words? (cdr l)) #f))
-                           (begin #f))))))
+                           (begin #t)
+                           (if (pair? l)
+                               (begin
+                                 (if (word? (car l)) (list-of-words? (cdr l)) #f))
+                               (begin #f))))))
       list-of-words?)))
 
 (define-values
@@ -190,14 +194,14 @@
                        (letrec-values (((helper)
                                         (lambda (i len)
                                           (if (= i len)
-                                            'done
-                                            (begin
-                                              (vector-set!
-                                                *the-char-ranks*
-                                                (char->integer
+                                              'done
+                                              (begin
+                                                (vector-set!
+                                                 *the-char-ranks*
+                                                 (char->integer
                                                   (string-ref str i))
-                                                rank)
-                                              (helper (+ i 1) len))))))
+                                                 rank)
+                                                (helper (+ i 1) len))))))
                          (helper 0 (string-length str))))))
       (rank-string (symbol->string 'abcdefghijklmnopqrstuvwxyz) 0)
       (rank-string "!$%&*/:<=>?~_^" 0)
@@ -223,103 +227,103 @@
       (letrec-values (((subsequents?)
                        (lambda (string i length)
                          (if (= i length)
-                           (begin #t)
-                           (if (<= (char-rank (string-ref string i)) 2)
-                             (begin (subsequents? string (+ i 1) length))
-                             (begin #f)))))
+                             (begin #t)
+                             (if (<= (char-rank (string-ref string i)) 2)
+                                 (begin (subsequents? string (+ i 1) length))
+                                 (begin #f)))))
                       ((special-id?)
                        (lambda (string)
                          (let-values (((or-part) (string=? string "+")))
                            (if or-part
-                             or-part
-                             (let-values (((or-part) (string=? string "-")))
-                               (if or-part
-                                 or-part
-                                 (string=? string "...")))))))
+                               or-part
+                               (let-values (((or-part) (string=? string "-")))
+                                 (if or-part
+                                     or-part
+                                     (string=? string "...")))))))
                       ((ok-symbol?)
                        (lambda (string)
                          (if (string=? string "")
-                           #f
-                           (let-values (((rank1)
-                                         (char-rank (string-ref string 0))))
-                             (if (= rank1 0)
-                               (begin
-                                 (subsequents?
-                                   string
-                                   1
-                                   (string-length string)))
-                               (if (= rank1 1)
-                                 (begin (special-id? string))
-                                 (begin #f)))))))
+                             #f
+                             (let-values (((rank1)
+                                           (char-rank (string-ref string 0))))
+                               (if (= rank1 0)
+                                   (begin
+                                     (subsequents?
+                                      string
+                                      1
+                                      (string-length string)))
+                                   (if (= rank1 1)
+                                       (begin (special-id? string))
+                                       (begin #f)))))))
                       ((nn-helper)
                        (lambda (string i len seen-point?)
                          (if (= i len)
-                           (begin
-                             (if seen-point?
-                               (not (char=? (string-ref string (- len 1)) #\0))
-                               #t))
-                           (if (char=? #\. (string-ref string i))
                              (begin
                                (if seen-point?
-                                 (begin #f)
-                                 (if (= (+ i 2) len)
-                                   (begin #t)
-                                   (begin (nn-helper string (+ i 1) len #t)))))
-                             (if (= 2 (char-rank (string-ref string i)))
-                               (begin
-                                 (nn-helper string (+ i 1) len seen-point?))
-                               (begin #f))))))
+                                   (not (char=? (string-ref string (- len 1)) #\0))
+                                   #t))
+                             (if (char=? #\. (string-ref string i))
+                                 (begin
+                                   (if seen-point?
+                                       (begin #f)
+                                       (if (= (+ i 2) len)
+                                           (begin #t)
+                                           (begin (nn-helper string (+ i 1) len #t)))))
+                                 (if (= 2 (char-rank (string-ref string i)))
+                                     (begin
+                                       (nn-helper string (+ i 1) len seen-point?))
+                                     (begin #f))))))
                       ((narrow-number?)
                        (lambda (string)
                          (if (string=? string "")
-                           #f
-                           (let-values (((c0) (string-ref string 0)))
-                             (let-values (((start) 0))
-                               (let-values (((len) (string-length string)))
-                                 (let-values (((cn)
-                                               (string-ref string (- len 1))))
-                                   (if (if (char=? c0 #\-) (not (= len 1)) #f)
-                                     (begin
-                                       (set! start (#%datum . 1))
-                                       (set! c0
-                                         (#%app
-                                          string-ref
-                                          string
-                                          (#%datum . 1))))
-                                     #f)
-                                   (if (not (= (char-rank cn) 2))
-                                     (begin #f)
-                                     (if (char=? c0 #\.)
-                                       (begin #f)
-                                       (if (char=? c0 #\0)
+                             #f
+                             (let-values (((c0) (string-ref string 0)))
+                               (let-values (((start) 0))
+                                 (let-values (((len) (string-length string)))
+                                   (let-values (((cn)
+                                                 (string-ref string (- len 1))))
+                                     (if (if (char=? c0 #\-) (not (= len 1)) #f)
                                          (begin
-                                           (if (= len 1)
-                                             (begin #t)
-                                             (if (= len 2)
-                                               (begin #f)
-                                               (if (char=?
-                                                     (string-ref
-                                                       string
-                                                       (+ start 1))
-                                                     #\.)
+                                           (set! start (#%datum . 1))
+                                           (set! c0
+                                                 (#%app
+                                                  string-ref
+                                                  string
+                                                  (#%datum . 1))))
+                                         #f)
+                                     (if (not (= (char-rank cn) 2))
+                                         (begin #f)
+                                         (if (char=? c0 #\.)
+                                             (begin #f)
+                                             (if (char=? c0 #\0)
+                                                 (begin
+                                                   (if (= len 1)
+                                                       (begin #t)
+                                                       (if (= len 2)
+                                                           (begin #f)
+                                                           (if (char=?
+                                                                (string-ref
+                                                                 string
+                                                                 (+ start 1))
+                                                                #\.)
+                                                               (begin
+                                                                 (nn-helper
+                                                                  string
+                                                                  (+ start 2)
+                                                                  len
+                                                                  #t))
+                                                               (begin #f)))))
                                                  (begin
                                                    (nn-helper
-                                                     string
-                                                     (+ start 2)
-                                                     len
-                                                     #t))
-                                                 (begin #f)))))
-                                         (begin
-                                           (nn-helper
-                                             string
-                                             start
-                                             len
-                                             #f)))))))))))))
+                                                    string
+                                                    start
+                                                    len
+                                                    #f)))))))))))))
         (if (narrow-number? string)
-          (begin (string->number string))
-          (if (ok-symbol? string)
-            (begin (string->symbol string))
-            (begin string)))))))
+            (begin (string->number string))
+            (if (ok-symbol? string)
+                (begin (string->symbol string))
+                (begin string)))))))
 
 (define-values
   (char->word)
@@ -332,12 +336,12 @@
     (lambda (char)
       (let-values (((rank) (char-rank char)) ((string) (make-string 1 char)))
         (if (= rank 0)
-          (begin (string->symbol string))
-          (if (= rank 2)
-            (begin (string->number string))
-            (if (char=? char #\+)
-              (begin '+)
-              (if (char=? char #\-) (begin '-) (begin string)))))))))
+            (begin (string->symbol string))
+            (if (= rank 2)
+                (begin (string->number string))
+                (if (char=? char #\+)
+                    (begin '+)
+                    (if (char=? char #\-) (begin '-) (begin string)))))))))
 
 (define-values
   (word->string)
@@ -347,10 +351,10 @@
                ((symbol->string) symbol->string))
     (lambda (wd)
       (if (string? wd)
-        (begin wd)
-        (if (number? wd)
-          (begin (number->string wd))
-          (begin (symbol->string wd)))))))
+          (begin wd)
+          (if (number? wd)
+              (begin (number->string wd))
+              (begin (symbol->string wd)))))))
 
 (define-values
   (count)
@@ -372,14 +376,14 @@
                ((whoops) whoops))
     (lambda x
       (string->word
-        (apply
-         string-append
-         (map
-          (lambda (arg)
-            (if (word? arg)
-              (word->string arg)
-              (whoops "Invalid argument to WORD: " arg)))
-          x))))))
+       (apply
+        string-append
+        (map
+         (lambda (arg)
+           (if (word? arg)
+               (word->string arg)
+               (whoops "Invalid argument to WORD: " arg)))
+         x))))))
 
 (define-values
   (se)
@@ -393,33 +397,33 @@
     (letrec-values (((paranoid-append)
                      (lambda (a original-a b)
                        (if (null? a)
-                         (begin b)
-                         (if (word? (car a))
-                           (begin
-                             (cons
-                              (car a)
-                              (paranoid-append (cdr a) original-a b)))
-                           (begin
-                             (whoops
-                               "Argument to SENTENCE not a word or sentence"
-                               original-a))))))
+                           (begin b)
+                           (if (word? (car a))
+                               (begin
+                                 (cons
+                                  (car a)
+                                  (paranoid-append (cdr a) original-a b)))
+                               (begin
+                                 (whoops
+                                  "Argument to SENTENCE not a word or sentence"
+                                  original-a))))))
                     ((combine-two)
                      (lambda (a b)
                        (if (pair? a)
-                         (begin (paranoid-append a a b))
-                         (if (null? a)
-                           (begin b)
-                           (if (word? a)
-                             (begin (cons a b))
-                             (begin
-                               (whoops
-                                 "Argument to SENTENCE not a word or sentence:"
-                                 a)))))))
+                           (begin (paranoid-append a a b))
+                           (if (null? a)
+                               (begin b)
+                               (if (word? a)
+                                   (begin (cons a b))
+                                   (begin
+                                     (whoops
+                                      "Argument to SENTENCE not a word or sentence:"
+                                      a)))))))
                     ((real-se)
                      (lambda (args)
                        (if (null? args)
-                         '()
-                         (combine-two (car args) (real-se (cdr args)))))))
+                           '()
+                           (combine-two (car args) (real-se (cdr args)))))))
       (lambda args (real-se args)))))
 
 (define-values (sentence) se)
@@ -439,12 +443,12 @@
                        (char->word (string-ref (word->string wd) 0)))))
       (lambda (x)
         (if (pair? x)
-          (begin (car x))
-          (if (empty? x)
-            (begin (whoops "Invalid argument to FIRST: " x))
-            (if (word? x)
-              (begin (word-first x))
-              (begin (whoops "Invalid argument to FIRST: " x)))))))))
+            (begin (car x))
+            (if (empty? x)
+                (begin (whoops "Invalid argument to FIRST: " x))
+                (if (word? x)
+                    (begin (word-first x))
+                    (begin (whoops "Invalid argument to FIRST: " x)))))))))
 
 (define-values
   (last)
@@ -466,16 +470,16 @@
                     ((list-last)
                      (lambda (lst)
                        (if (empty? (cdr lst))
-                         (car lst)
-                         (list-last (cdr lst))))))
+                           (car lst)
+                           (list-last (cdr lst))))))
       (lambda (x)
         (if (pair? x)
-          (begin (list-last x))
-          (if (empty? x)
-            (begin (whoops "Invalid argument to LAST: " x))
-            (if (word? x)
-              (begin (word-last x))
-              (begin (whoops "Invalid argument to LAST: " x)))))))))
+            (begin (list-last x))
+            (if (empty? x)
+                (begin (whoops "Invalid argument to LAST: " x))
+                (if (word? x)
+                    (begin (word-last x))
+                    (begin (whoops "Invalid argument to LAST: " x)))))))))
 
 (define-values
   (bf)
@@ -495,12 +499,12 @@
                        (string->word (string-bf (word->string wd))))))
       (lambda (x)
         (if (pair? x)
-          (begin (cdr x))
-          (if (empty? x)
-            (begin (whoops "Invalid argument to BUTFIRST: " x))
-            (if (word? x)
-              (begin (word-bf x))
-              (begin (whoops "Invalid argument to BUTFIRST: " x)))))))))
+            (begin (cdr x))
+            (if (empty? x)
+                (begin (whoops "Invalid argument to BUTFIRST: " x))
+                (if (word? x)
+                    (begin (word-bf x))
+                    (begin (whoops "Invalid argument to BUTFIRST: " x)))))))))
 
 (define-values (butfirst) bf)
 
@@ -521,8 +525,8 @@
     (letrec-values (((list-bl)
                      (lambda (list)
                        (if (null? (cdr list))
-                         '()
-                         (cons (car list) (list-bl (cdr list))))))
+                           '()
+                           (cons (car list) (list-bl (cdr list))))))
                     ((string-bl)
                      (lambda (s) (substring s 0 (- (string-length s) 1))))
                     ((word-bl)
@@ -530,12 +534,12 @@
                        (string->word (string-bl (word->string wd))))))
       (lambda (x)
         (if (pair? x)
-          (begin (list-bl x))
-          (if (empty? x)
-            (begin (whoops "Invalid argument to BUTLAST: " x))
-            (if (word? x)
-              (begin (word-bl x))
-              (begin (whoops "Invalid argument to BUTLAST: " x)))))))))
+            (begin (list-bl x))
+            (if (empty? x)
+                (begin (whoops "Invalid argument to BUTLAST: " x))
+                (if (word? x)
+                    (begin (word-bl x))
+                    (begin (whoops "Invalid argument to BUTLAST: " x)))))))))
 
 (define-values (butlast) bl)
 
@@ -559,104 +563,104 @@
                        (char->word (string-ref (word->string wd) (- n 1))))))
       (lambda (n stuff)
         (if (not (integer? n))
-          (begin
-            (whoops "Invalid first argument to ITEM (must be an integer): " n))
-          (if (< n 1)
             (begin
-              (whoops "Invalid first argument to ITEM (must be positive): " n))
-            (if (> n (count stuff))
-              (begin (whoops "No such item: " n stuff))
-              (if (word? stuff)
-                (begin (word-item n stuff))
-                (if (list? stuff)
-                  (begin (list-ref stuff (- n 1)))
-                  (begin
-                    (whoops
-                      "Invalid second argument to ITEM: "
-                      stuff)))))))))))
+              (whoops "Invalid first argument to ITEM (must be an integer): " n))
+            (if (< n 1)
+                (begin
+                  (whoops "Invalid first argument to ITEM (must be positive): " n))
+                (if (> n (count stuff))
+                    (begin (whoops "No such item: " n stuff))
+                    (if (word? stuff)
+                        (begin (word-item n stuff))
+                        (if (list? stuff)
+                            (begin (list-ref stuff (- n 1)))
+                            (begin
+                              (whoops
+                               "Invalid second argument to ITEM: "
+                               stuff)))))))))))
 
 (set! simply-scheme:equal?
-  (let-values (((vector-length) vector-length)
-               ((=) simply-scheme:=)
-               ((vector-ref) simply-scheme:vector-ref)
-               ((+) simply-scheme:+)
-               ((string?) string?)
-               ((symbol?) symbol?)
-               ((null?) null?)
-               ((pair?) pair?)
-               ((car) car)
-               ((cdr) cdr)
-               ((eq?) eq?)
-               ((string=?) string=?)
-               ((symbol->string) symbol->string)
-               ((number?) simply-scheme:number?)
-               ((string->word) string->word)
-               ((vector?) vector?)
-               ((eqv?) eqv?))
-    (letrec-values (((vector-equal?)
-                     (lambda (v1 v2)
-                       (let-values (((len1) (vector-length v1))
-                                    ((len2) (vector-length v2)))
-                         (letrec-values (((helper)
-                                          (lambda (i)
-                                            (if (= i len1)
-                                              #t
-                                              (if (simply-scheme:equal?
-                                                    (vector-ref v1 i)
-                                                    (vector-ref v2 i))
-                                                (helper (+ i 1))
-                                                #f)))))
-                           (if (= len1 len2) (helper 0) #f))))))
-      (lambda (x y)
-        (if (null? x)
-          (begin (null? y))
-          (if (null? y)
-            (begin #f)
-            (if (pair? x)
-              (begin
-                (if (pair? y)
-                  (if (simply-scheme:equal? (car x) (car y))
-                    (simply-scheme:equal? (cdr x) (cdr y))
-                    #f)
-                  #f))
-              (if (pair? y)
-                (begin #f)
-                (if (symbol? x)
-                  (begin
-                    (let-values (((or-part) (if (symbol? y) (eq? x y) #f)))
-                      (if or-part
-                        or-part
-                        (if (string? y) (string=? (symbol->string x) y) #f))))
-                  (if (symbol? y)
-                    (begin (if (string? x) (string=? x (symbol->string y)) #f))
-                    (if (number? x)
-                      (begin
-                        (let-values (((or-part) (if (number? y) (= x y) #f)))
-                          (if or-part
-                            or-part
-                            (if (string? y)
-                              (let-values (((possible-num) (string->word y)))
-                                (if (number? possible-num)
-                                  (= x possible-num)
-                                  #f))
-                              #f))))
-                      (if (number? y)
+      (let-values (((vector-length) vector-length)
+                   ((=) simply-scheme:=)
+                   ((vector-ref) simply-scheme:vector-ref)
+                   ((+) simply-scheme:+)
+                   ((string?) string?)
+                   ((symbol?) symbol?)
+                   ((null?) null?)
+                   ((pair?) pair?)
+                   ((car) car)
+                   ((cdr) cdr)
+                   ((eq?) eq?)
+                   ((string=?) string=?)
+                   ((symbol->string) symbol->string)
+                   ((number?) simply-scheme:number?)
+                   ((string->word) string->word)
+                   ((vector?) vector?)
+                   ((eqv?) eqv?))
+        (letrec-values (((vector-equal?)
+                         (lambda (v1 v2)
+                           (let-values (((len1) (vector-length v1))
+                                        ((len2) (vector-length v2)))
+                             (letrec-values (((helper)
+                                              (lambda (i)
+                                                (if (= i len1)
+                                                    #t
+                                                    (if (simply-scheme:equal?
+                                                         (vector-ref v1 i)
+                                                         (vector-ref v2 i))
+                                                        (helper (+ i 1))
+                                                        #f)))))
+                               (if (= len1 len2) (helper 0) #f))))))
+          (lambda (x y)
+            (if (null? x)
+                (begin (null? y))
+                (if (null? y)
+                    (begin #f)
+                    (if (pair? x)
                         (begin
-                          (if (string? x)
-                            (let-values (((possible-num) (string->word x)))
-                              (if (number? possible-num)
-                                (= possible-num y)
-                                #f))
-                            #f))
-                        (if (string? x)
-                          (begin (if (string? y) (string=? x y) #f))
-                          (if (string? y)
+                          (if (pair? y)
+                              (if (simply-scheme:equal? (car x) (car y))
+                                  (simply-scheme:equal? (cdr x) (cdr y))
+                                  #f)
+                              #f))
+                        (if (pair? y)
                             (begin #f)
-                            (if (vector? x)
-                              (begin (if (vector? y) (vector-equal? x y) #f))
-                              (if (vector? y)
-                                (begin #f)
-                                (begin (eqv? x y))))))))))))))))))
+                            (if (symbol? x)
+                                (begin
+                                  (let-values (((or-part) (if (symbol? y) (eq? x y) #f)))
+                                    (if or-part
+                                        or-part
+                                        (if (string? y) (string=? (symbol->string x) y) #f))))
+                                (if (symbol? y)
+                                    (begin (if (string? x) (string=? x (symbol->string y)) #f))
+                                    (if (number? x)
+                                        (begin
+                                          (let-values (((or-part) (if (number? y) (= x y) #f)))
+                                            (if or-part
+                                                or-part
+                                                (if (string? y)
+                                                    (let-values (((possible-num) (string->word y)))
+                                                      (if (number? possible-num)
+                                                          (= x possible-num)
+                                                          #f))
+                                                    #f))))
+                                        (if (number? y)
+                                            (begin
+                                              (if (string? x)
+                                                  (let-values (((possible-num) (string->word x)))
+                                                    (if (number? possible-num)
+                                                        (= possible-num y)
+                                                        #f))
+                                                  #f))
+                                            (if (string? x)
+                                                (begin (if (string? y) (string=? x y) #f))
+                                                (if (string? y)
+                                                    (begin #f)
+                                                    (if (vector? x)
+                                                        (begin (if (vector? y) (vector-equal? x y) #f))
+                                                        (if (vector? y)
+                                                            (begin #f)
+                                                            (begin (eqv? x y))))))))))))))))))
 
 (define-values
   (member?)
@@ -685,71 +689,71 @@
     (letrec-values (((symbol-in-list?)
                      (lambda (symbol string lst)
                        (if (null? lst)
-                         (begin #f)
-                         (let-values (((g174)
-                                       (if (symbol? (car lst))
-                                         (eq? symbol (car lst))
-                                         #f)))
-                           (if g174
-                             g174
-                             (if (string? (car lst))
-                               (begin
-                                 (if (not string)
-                                   (begin
-                                     (symbol-in-list?
-                                       symbol
-                                       (symbol->string symbol)
-                                       lst))
-                                   (if (string=? string (car lst))
-                                     (begin #t)
+                           (begin #f)
+                           (let-values (((g174)
+                                         (if (symbol? (car lst))
+                                             (eq? symbol (car lst))
+                                             #f)))
+                             (if g174
+                                 g174
+                                 (if (string? (car lst))
+                                     (begin
+                                       (if (not string)
+                                           (begin
+                                             (symbol-in-list?
+                                              symbol
+                                              (symbol->string symbol)
+                                              lst))
+                                           (if (string=? string (car lst))
+                                               (begin #t)
+                                               (begin
+                                                 (symbol-in-list?
+                                                  symbol
+                                                  string
+                                                  (cdr lst))))))
                                      (begin
                                        (symbol-in-list?
-                                         symbol
-                                         string
-                                         (cdr lst))))))
-                               (begin
-                                 (symbol-in-list?
-                                   symbol
-                                   string
-                                   (cdr lst)))))))))
+                                        symbol
+                                        string
+                                        (cdr lst)))))))))
                     ((word-in-list?)
                      (lambda (wd lst)
                        (if (null? lst)
-                         (begin #f)
-                         (if (equal? wd (car lst))
-                           (begin #t)
-                           (begin (word-in-list? wd (cdr lst)))))))
+                           (begin #f)
+                           (if (equal? wd (car lst))
+                               (begin #t)
+                               (begin (word-in-list? wd (cdr lst)))))))
                     ((word-in-word?)
                      (lambda (small big)
                        (let-values (((one-letter-str) (word->string small)))
                          (if (> (string-length one-letter-str) 1)
-                           (whoops "Invalid arguments to MEMBER?: " small big)
-                           (let-values (((big-str) (word->string big)))
-                             (char-in-string?
-                               (string-ref one-letter-str 0)
-                               big-str
-                               (- (string-length big-str) 1)))))))
+                             (whoops "Invalid arguments to MEMBER?: " small big)
+                             (let-values (((big-str) (word->string big)))
+                               (char-in-string?
+                                (string-ref one-letter-str 0)
+                                big-str
+                                (- (string-length big-str) 1)))))))
                     ((char-in-string?)
                      (lambda (char string i)
                        (if (< i 0)
-                         (begin #f)
-                         (if (char=? char (string-ref string i))
-                           (begin #t)
-                           (begin (char-in-string? char string (- i 1))))))))
+                           (begin #f)
+                           (if (char=? char (string-ref string i))
+                               (begin #t)
+                               (begin (char-in-string? char string (- i 1))))))))
       (lambda (x stuff)
         (if (empty? stuff)
-          (begin #f)
-          (if (word? stuff)
-            (begin (word-in-word? x stuff))
-            (if (not (list? stuff))
-              (begin (whoops "Invalid second argument to MEMBER?: " stuff))
-              (if (symbol? x)
-                (begin (symbol-in-list? x #f stuff))
-                (if (let-values (((or-part) (number? x)))
-                      (if or-part or-part (string? x)))
-                  (begin (word-in-list? x stuff))
-                  (begin
-                    (whoops "Invalid first argument to MEMBER?: " x)))))))))))
+            (begin #f)
+            (if (word? stuff)
+                (begin (word-in-word? x stuff))
+                (if (not (list? stuff))
+                    (begin (whoops "Invalid second argument to MEMBER?: " stuff))
+                    (if (symbol? x)
+                        (begin (symbol-in-list? x #f stuff))
+                        (if (let-values (((or-part) (number? x)))
+                              (if or-part or-part (string? x)))
+                            (begin (word-in-list? x stuff))
+                            (begin
+                              (whoops "Invalid first argument to MEMBER?: " x)))))))))))
 
 (define-values
   (before?)
@@ -760,11 +764,11 @@
                ((word->string) word->string))
     (lambda (wd1 wd2)
       (if (not (word? wd1))
-        (begin (whoops "Invalid first argument to BEFORE? (not a word): " wd1))
-        (if (not (word? wd2))
-          (begin
-            (whoops "Invalid second argument to BEFORE? (not a word): " wd2))
-          (begin (string<? (word->string wd1) (word->string wd2))))))))
+          (begin (whoops "Invalid first argument to BEFORE? (not a word): " wd1))
+          (if (not (word? wd2))
+              (begin
+                (whoops "Invalid second argument to BEFORE? (not a word): " wd2))
+              (begin (string<? (word->string wd1) (word->string wd2))))))))
 
 (define-values
   (filter)
@@ -780,19 +784,19 @@
       (letrec-values (((real-filter)
                        (lambda (l)
                          (if (null? l)
-                           (begin '())
-                           (if (pred (car l))
-                             (begin (cons (car l) (real-filter (cdr l))))
-                             (begin (real-filter (cdr l))))))))
+                             (begin '())
+                             (if (pred (car l))
+                                 (begin (cons (car l) (real-filter (cdr l))))
+                                 (begin (real-filter (cdr l))))))))
         (if (not (procedure? pred))
-          (begin
-            (whoops
-              "Invalid first argument to FILTER (not a procedure): "
-              pred))
-          (if (not (list? l))
             (begin
-              (whoops "Invalid second argument to FILTER (not a list): " l))
-            (begin (real-filter l))))))))
+              (whoops
+               "Invalid first argument to FILTER (not a procedure): "
+               pred))
+            (if (not (list? l))
+                (begin
+                  (whoops "Invalid second argument to FILTER (not a list): " l))
+                (begin (real-filter l))))))))
 
 (define-values
   (keep)
@@ -815,37 +819,37 @@
       (letrec-values (((keep-string)
                        (lambda (in i out out-len len)
                          (if (= i len)
-                           (begin (substring out 0 out-len))
-                           (if (pred (char->word (string-ref in i)))
-                             (begin
-                               (string-set! out out-len (string-ref in i))
-                               (keep-string in (+ i 1) out (+ out-len 1) len))
-                             (begin
-                               (keep-string in (+ i 1) out out-len len))))))
+                             (begin (substring out 0 out-len))
+                             (if (pred (char->word (string-ref in i)))
+                                 (begin
+                                   (string-set! out out-len (string-ref in i))
+                                   (keep-string in (+ i 1) out (+ out-len 1) len))
+                                 (begin
+                                   (keep-string in (+ i 1) out out-len len))))))
                       ((keep-word)
                        (lambda (wd)
                          (let-values (((string) (word->string wd)))
                            (let-values (((len) (string-length string)))
                              (string->word
-                               (keep-string
-                                 string
-                                 0
-                                 (make-string len)
-                                 0
-                                 len)))))))
+                              (keep-string
+                               string
+                               0
+                               (make-string len)
+                               0
+                               len)))))))
         (if (not (procedure? pred))
-          (begin
-            (whoops "Invalid first argument to KEEP (not a procedure): " pred))
-          (if (pair? w-or-s)
-            (begin (filter pred w-or-s))
-            (if (word? w-or-s)
-              (begin (keep-word w-or-s))
-              (if (null? w-or-s)
-                (begin '())
-                (begin
-                  (whoops
-                    "Bad second argument to KEEP (not a word or sentence): "
-                    w-or-s))))))))))
+            (begin
+              (whoops "Invalid first argument to KEEP (not a procedure): " pred))
+            (if (pair? w-or-s)
+                (begin (filter pred w-or-s))
+                (if (word? w-or-s)
+                    (begin (keep-word w-or-s))
+                    (if (null? w-or-s)
+                        (begin '())
+                        (begin
+                          (whoops
+                           "Bad second argument to KEEP (not a word or sentence): "
+                           w-or-s))))))))))
 
 (define-values
   (appearances)
@@ -873,23 +877,23 @@
       (letrec-values (((string-every)
                        (lambda (string i length)
                          (if (= i length)
-                           '()
-                           (se
-                            (fn (char->word (string-ref string i)))
-                            (string-every string (+ i 1) length)))))
+                             '()
+                             (se
+                              (fn (char->word (string-ref string i)))
+                              (string-every string (+ i 1) length)))))
                       ((sent-every)
                        (lambda (sent)
                          (if (empty? sent)
-                           sent
-                           (se (fn (first sent)) (sent-every (bf sent)))))))
+                             sent
+                             (se (fn (first sent)) (sent-every (bf sent)))))))
         (if (not (procedure? fn))
-          (begin
-            (whoops "Invalid first argument to EVERY (not a procedure):" fn))
-          (if (word? stuff)
             (begin
-              (let-values (((string) (word->string stuff)))
-                (string-every string 0 (string-length string))))
-            (begin (sent-every stuff))))))))
+              (whoops "Invalid first argument to EVERY (not a procedure):" fn))
+            (if (word? stuff)
+                (begin
+                  (let-values (((string) (word->string stuff)))
+                    (string-every string 0 (string-length string))))
+                (begin (sent-every stuff))))))))
 
 (define-values
   (accumulate)
@@ -905,24 +909,24 @@
       (letrec-values (((real-accumulate)
                        (lambda (stuff)
                          (if (empty? (bf stuff))
-                           (first stuff)
-                           (combiner
                              (first stuff)
-                             (real-accumulate (bf stuff)))))))
+                             (combiner
+                              (first stuff)
+                              (real-accumulate (bf stuff)))))))
         (if (not (procedure? combiner))
-          (begin
-            (whoops
-              "Invalid first argument to ACCUMULATE (not a procedure):"
-              combiner))
-          (if (not (empty? stuff))
-            (begin (real-accumulate stuff))
-            (if (member
-                  combiner
-                  (list simply-scheme:+ simply-scheme:* word se))
-              (begin (combiner))
-              (begin
-                (whoops
-                  "Can't accumulate empty input with that combiner")))))))))
+            (begin
+              (whoops
+               "Invalid first argument to ACCUMULATE (not a procedure):"
+               combiner))
+            (if (not (empty? stuff))
+                (begin (real-accumulate stuff))
+                (if (member
+                     combiner
+                     (list simply-scheme:+ simply-scheme:* word se))
+                    (begin (combiner))
+                    (begin
+                      (whoops
+                       "Can't accumulate empty input with that combiner")))))))))
 
 (define-values
   (reduce)
@@ -938,29 +942,29 @@
       (letrec-values (((real-reduce)
                        (lambda (stuff)
                          (if (null? (cdr stuff))
-                           (car stuff)
-                           (combiner (car stuff) (real-reduce (cdr stuff)))))))
+                             (car stuff)
+                             (combiner (car stuff) (real-reduce (cdr stuff)))))))
         (if (not (procedure? combiner))
-          (begin
-            (whoops
-              "Invalid first argument to REDUCE (not a procedure):"
-              combiner))
-          (if (not (null? stuff))
-            (begin (real-reduce stuff))
-            (if (member
-                  combiner
-                  (list simply-scheme:+ simply-scheme:* word se append))
-              (begin (combiner))
-              (begin
-                (whoops "Can't reduce empty input with that combiner")))))))))
+            (begin
+              (whoops
+               "Invalid first argument to REDUCE (not a procedure):"
+               combiner))
+            (if (not (null? stuff))
+                (begin (real-reduce stuff))
+                (if (member
+                     combiner
+                     (list simply-scheme:+ simply-scheme:* word se append))
+                    (begin (combiner))
+                    (begin
+                      (whoops "Can't reduce empty input with that combiner")))))))))
 
 (define-values
   (repeated)
   (let-values (((=) simply-scheme:=) ((-) simply-scheme:-))
     (lambda (fn number)
       (if (= number 0)
-        (lambda (x) x)
-        (lambda (x) ((repeated fn (- number 1)) (fn x)))))))
+          (lambda (x) x)
+          (lambda (x) ((repeated fn (- number 1)) (fn x)))))))
 
 (define-values (make-node) cons)
 
@@ -981,18 +985,18 @@
                ((whoops) whoops))
     (lambda args
       (if (= (length args) 1)
-        (begin (display (car args)) (newline))
-        (if (= (length args) 2)
-          (begin
-            (if (not (output-port? (car (cdr args))))
-              (whoops
-                "Invalid second argument to SHOW (not an output port): "
-                (car (cdr args)))
-              (void))
-            (apply display args)
-            (newline (car (cdr args))))
-          (begin
-            (whoops "Incorrect number of arguments to procedure SHOW")))))))
+          (begin (display (car args)) (newline))
+          (if (= (length args) 2)
+              (begin
+                (if (not (output-port? (car (cdr args))))
+                    (whoops
+                     "Invalid second argument to SHOW (not an output port): "
+                     (car (cdr args)))
+                    (void))
+                (apply display args)
+                (newline (car (cdr args))))
+              (begin
+                (whoops "Incorrect number of arguments to procedure SHOW")))))))
 
 (define-values
   (show-line)
@@ -1010,132 +1014,132 @@
                ((newline) newline))
     (lambda (line . args)
       (if (>= (length args) 2)
-        (whoops "Too many arguments to show-line")
-        (let-values (((port)
-                      (if (null? args) (current-output-port) (car args))))
-          (if (not (list? line))
-            (begin (whoops "Invalid argument to SHOW-LINE (not a list):" line))
-            (if (null? line)
-              (begin #f)
-              (begin
-                (display (car line) port)
-                (for-each
-                  (lambda (wd) (display " " port) (display wd port))
-                  (cdr line)))))
-          (newline port))))))
+          (whoops "Too many arguments to show-line")
+          (let-values (((port)
+                        (if (null? args) (current-output-port) (car args))))
+            (if (not (list? line))
+                (begin (whoops "Invalid argument to SHOW-LINE (not a list):" line))
+                (if (null? line)
+                    (begin #f)
+                    (begin
+                      (display (car line) port)
+                      (for-each
+                       (lambda (wd) (display " " port) (display wd port))
+                       (cdr line)))))
+            (newline port))))))
 
 (set! simply-scheme:read-string
-  (let-values (((read-char) read-char)
-               ((eqv?) eqv?)
-               ((apply) apply)
-               ((string-append) string-append)
-               ((substring) substring)
-               ((reverse) reverse)
-               ((cons) cons)
-               ((>=) simply-scheme:>=)
-               ((+) simply-scheme:+)
-               ((string-set!) string-set!)
-               ((length) length)
-               ((whoops) whoops)
-               ((null?) null?)
-               ((current-input-port) current-input-port)
-               ((car) car)
-               ((cdr) cdr)
-               ((eof-object?) eof-object?)
-               ((list) list)
-               ((make-string) make-string)
-               ((peek-char) peek-char))
-    (letrec-values (((read-string-helper)
-                     (lambda (chars all-length chunk-length port)
-                       (let-values (((char) (read-char port))
-                                    ((string) (car chars)))
-                         (if (let-values (((or-part) (eof-object? char)))
-                               (if or-part or-part (eqv? char #\newline)))
-                           (begin
-                             (apply
-                              string-append
-                              (reverse
-                                (cons
-                                 (substring (car chars) 0 chunk-length)
-                                 (cdr chars)))))
-                           (if (>= chunk-length 80)
-                             (begin
-                               (let-values (((newstring) (make-string 80)))
-                                 (string-set! newstring 0 char)
-                                 (read-string-helper
-                                   (cons newstring chars)
-                                   (+ all-length 1)
-                                   1
-                                   port)))
-                             (begin
-                               (string-set! string chunk-length char)
-                               (read-string-helper
-                                 chars
-                                 (+ all-length 1)
-                                 (+ chunk-length 1)
-                                 port))))))))
-      (lambda args
-        (if (>= (length args) 2)
-          (whoops "Too many arguments to read-string")
-          (let-values (((port)
-                        (if (null? args) (current-input-port) (car args))))
-            (if (eof-object? (peek-char port))
-              (read-char port)
-              (read-string-helper (list (make-string 80)) 0 0 port))))))))
+      (let-values (((read-char) read-char)
+                   ((eqv?) eqv?)
+                   ((apply) apply)
+                   ((string-append) string-append)
+                   ((substring) substring)
+                   ((reverse) reverse)
+                   ((cons) cons)
+                   ((>=) simply-scheme:>=)
+                   ((+) simply-scheme:+)
+                   ((string-set!) string-set!)
+                   ((length) length)
+                   ((whoops) whoops)
+                   ((null?) null?)
+                   ((current-input-port) current-input-port)
+                   ((car) car)
+                   ((cdr) cdr)
+                   ((eof-object?) eof-object?)
+                   ((list) list)
+                   ((make-string) make-string)
+                   ((peek-char) peek-char))
+        (letrec-values (((read-string-helper)
+                         (lambda (chars all-length chunk-length port)
+                           (let-values (((char) (read-char port))
+                                        ((string) (car chars)))
+                             (if (let-values (((or-part) (eof-object? char)))
+                                   (if or-part or-part (eqv? char #\newline)))
+                                 (begin
+                                   (apply
+                                    string-append
+                                    (reverse
+                                     (cons
+                                      (substring (car chars) 0 chunk-length)
+                                      (cdr chars)))))
+                                 (if (>= chunk-length 80)
+                                     (begin
+                                       (let-values (((newstring) (make-string 80)))
+                                         (string-set! newstring 0 char)
+                                         (read-string-helper
+                                          (cons newstring chars)
+                                          (+ all-length 1)
+                                          1
+                                          port)))
+                                     (begin
+                                       (string-set! string chunk-length char)
+                                       (read-string-helper
+                                        chars
+                                        (+ all-length 1)
+                                        (+ chunk-length 1)
+                                        port))))))))
+          (lambda args
+            (if (>= (length args) 2)
+                (whoops "Too many arguments to read-string")
+                (let-values (((port)
+                              (if (null? args) (current-input-port) (car args))))
+                  (if (eof-object? (peek-char port))
+                      (read-char port)
+                      (read-string-helper (list (make-string 80)) 0 0 port))))))))
 
 (set! simply-scheme:read-line
-  (let-values (((=) simply-scheme:=)
-               ((list) list)
-               ((string->word) string->word)
-               ((substring) substring)
-               ((char-whitespace?) char-whitespace?)
-               ((string-ref) string-ref)
-               ((+) simply-scheme:+)
-               ((string-length) string-length)
-               ((apply) apply)
-               ((read-string) simply-scheme:read-string))
-    (lambda args
-      (letrec-values (((tokenize)
-                       (lambda (string)
-                         (letrec-values (((helper)
-                                          (lambda (i start len)
-                                            (if (= i len)
-                                              (begin
-                                                (if (= i start)
-                                                  '()
-                                                  (list
-                                                   (string->word
-                                                     (substring
-                                                       string
-                                                       start
-                                                       i)))))
-                                              (if (char-whitespace?
-                                                    (string-ref string i))
-                                                (begin
-                                                  (if (= i start)
-                                                    (helper
-                                                      (+ i 1)
-                                                      (+ i 1)
-                                                      len)
-                                                    (cons
-                                                     (string->word
-                                                       (substring
-                                                         string
-                                                         start
-                                                         i))
-                                                     (helper
-                                                       (+ i 1)
-                                                       (+ i 1)
-                                                       len))))
-                                                (begin
-                                                  (helper
-                                                    (+ i 1)
-                                                    start
-                                                    len)))))))
-                           (if (eof-object? string)
-                             string
-                             (helper 0 0 (string-length string)))))))
-        (tokenize (apply read-string args))))))
+      (let-values (((=) simply-scheme:=)
+                   ((list) list)
+                   ((string->word) string->word)
+                   ((substring) substring)
+                   ((char-whitespace?) char-whitespace?)
+                   ((string-ref) string-ref)
+                   ((+) simply-scheme:+)
+                   ((string-length) string-length)
+                   ((apply) apply)
+                   ((read-string) simply-scheme:read-string))
+        (lambda args
+          (letrec-values (((tokenize)
+                           (lambda (string)
+                             (letrec-values (((helper)
+                                              (lambda (i start len)
+                                                (if (= i len)
+                                                    (begin
+                                                      (if (= i start)
+                                                          '()
+                                                          (list
+                                                           (string->word
+                                                            (substring
+                                                             string
+                                                             start
+                                                             i)))))
+                                                    (if (char-whitespace?
+                                                         (string-ref string i))
+                                                        (begin
+                                                          (if (= i start)
+                                                              (helper
+                                                               (+ i 1)
+                                                               (+ i 1)
+                                                               len)
+                                                              (cons
+                                                               (string->word
+                                                                (substring
+                                                                 string
+                                                                 start
+                                                                 i))
+                                                               (helper
+                                                                (+ i 1)
+                                                                (+ i 1)
+                                                                len))))
+                                                        (begin
+                                                          (helper
+                                                           (+ i 1)
+                                                           start
+                                                           len)))))))
+                               (if (eof-object? string)
+                                   string
+                                   (helper 0 0 (string-length string)))))))
+            (tokenize (apply read-string args))))))
 
 (define-values (*the-open-inports*) '())
 
@@ -1174,26 +1178,26 @@
                                  (let-values (((cvt0) (number->string big)))
                                    (let-values (((cvt)
                                                  (if (< num 1)
-                                                   (string-append "0" cvt0)
-                                                   cvt0)))
+                                                     (string-append "0" cvt0)
+                                                     cvt0)))
                                      (let-values (((pos-str)
                                                    (if (>=
                                                         (string-length cvt0)
                                                         prec)
-                                                     cvt
-                                                     (string-append
-                                                       (make-string
+                                                       cvt
+                                                       (string-append
+                                                        (make-string
                                                          (-
                                                           prec
                                                           (string-length cvt0))
                                                          #\0)
-                                                       cvt))))
+                                                        cvt))))
                                        (let-values (((string)
                                                      (if sign
-                                                       (string-append
-                                                         "-"
-                                                         pos-str)
-                                                       pos-str)))
+                                                         (string-append
+                                                          "-"
+                                                          pos-str)
+                                                         pos-str)))
                                          (let-values (((length)
                                                        (+
                                                         (string-length string)
@@ -1204,73 +1208,73 @@
                                                           (+ 1 prec))))
                                              (let-values (((result)
                                                            (if (= prec 0)
-                                                             string
-                                                             (string-append
-                                                               (substring
+                                                               string
+                                                               (string-append
+                                                                (substring
                                                                  string
                                                                  0
                                                                  left)
-                                                               "."
-                                                               (substring
+                                                                "."
+                                                                (substring
                                                                  string
                                                                  left
                                                                  (-
                                                                   length
                                                                   1))))))
                                                (if (= length width)
-                                                 (begin result)
-                                                 (if (< length width)
-                                                   (begin
-                                                     (string-append
-                                                       (make-string
-                                                         (- width length)
-                                                         #\space)
-                                                       result))
-                                                   (begin
-                                                     (let-values (((new)
-                                                                   (substring
-                                                                     result
-                                                                     0
-                                                                     width)))
-                                                       (string-set!
-                                                         new
-                                                         (- width 1)
-                                                         #\+)
-                                                       new)))))))))))))))))
+                                                   (begin result)
+                                                   (if (< length width)
+                                                       (begin
+                                                         (string-append
+                                                          (make-string
+                                                           (- width length)
+                                                           #\space)
+                                                          result))
+                                                       (begin
+                                                         (let-values (((new)
+                                                                       (substring
+                                                                        result
+                                                                        0
+                                                                        width)))
+                                                           (string-set!
+                                                            new
+                                                            (- width 1)
+                                                            #\+)
+                                                           new)))))))))))))))))
                       ((align-word)
                        (lambda (string)
                          (let-values (((length) (string-length string)))
                            (if (= length width)
-                             (begin string)
-                             (if (< length width)
-                               (begin
-                                 (string-append
-                                   string
-                                   (make-string (- width length) #\space)))
-                               (begin
-                                 (let-values (((new)
-                                               (substring string 0 width)))
-                                   (string-set! new (- width 1) #\+)
-                                   new))))))))
+                               (begin string)
+                               (if (< length width)
+                                   (begin
+                                     (string-append
+                                      string
+                                      (make-string (- width length) #\space)))
+                                   (begin
+                                     (let-values (((new)
+                                                   (substring string 0 width)))
+                                       (string-set! new (- width 1) #\+)
+                                       new))))))))
         (if (number? obj)
-          (align-number obj width rest)
-          (align-word (word->string obj)))))))
+            (align-number obj width rest)
+            (align-word (word->string obj)))))))
 
 (set! simply-scheme:open-output-file
-  (let-values (((oof) simply-scheme:open-output-file) ((cons) cons))
-    (lambda (filename)
-      (let-values (((port) (oof filename)))
-        (set! *the-open-outports*
-          (#%app cons port (#%top . *the-open-outports*)))
-        port))))
+      (let-values (((oof) simply-scheme:open-output-file) ((cons) cons))
+        (lambda (filename)
+          (let-values (((port) (oof filename)))
+            (set! *the-open-outports*
+                  (#%app cons port (#%top . *the-open-outports*)))
+            port))))
 
 (set! simply-scheme:open-input-file
-  (let-values (((oif) simply-scheme:open-input-file) ((cons) cons))
-    (lambda (filename)
-      (let-values (((port) (oif filename)))
-        (set! *the-open-inports*
-          (#%app cons port (#%top . *the-open-inports*)))
-        port))))
+      (let-values (((oif) simply-scheme:open-input-file) ((cons) cons))
+        (lambda (filename)
+          (let-values (((port) (oif filename)))
+            (set! *the-open-inports*
+                  (#%app cons port (#%top . *the-open-inports*)))
+            port))))
 
 (define-values
   (remove)
@@ -1282,31 +1286,31 @@
       (letrec-values (((r)
                        (lambda (prev)
                          (if (null? (cdr prev))
-                           (begin lst)
-                           (if (eq? thing (car (cdr prev)))
-                             (begin (cons (car prev)
-                                          (cdr (cdr prev))))
-                             (begin (cons (car prev)
-                                          (r (cdr prev)))))))))
+                             (begin lst)
+                             (if (eq? thing (car (cdr prev)))
+                                 (begin (cons (car prev)
+                                              (cdr (cdr prev))))
+                                 (begin (cons (car prev)
+                                              (r (cdr prev)))))))))
         (if (null? lst)
-          (begin lst)
-          (if (eq? thing (car lst)) 
-              (begin (cdr lst))
-              (begin (r lst))))))))
+            (begin lst)
+            (if (eq? thing (car lst)) 
+                (begin (cdr lst))
+                (begin (r lst))))))))
 
 (set! simply-scheme:close-input-port
-  (let-values (((cip) simply-scheme:close-input-port) ((remove) remove))
-    (lambda (port)
-      (set! *the-open-inports*
-        (#%app remove port (#%top . *the-open-inports*)))
-      (cip port))))
+      (let-values (((cip) simply-scheme:close-input-port) ((remove) remove))
+        (lambda (port)
+          (set! *the-open-inports*
+                (#%app remove port (#%top . *the-open-inports*)))
+          (cip port))))
 
 (set! simply-scheme:close-output-port
-  (let-values (((cop) simply-scheme:close-output-port) ((remove) remove))
-    (lambda (port)
-      (set! *the-open-outports*
-        (#%app remove port (#%top . *the-open-outports*)))
-      (cop port))))
+      (let-values (((cop) simply-scheme:close-output-port) ((remove) remove))
+        (lambda (port)
+          (set! *the-open-outports*
+                (#%app remove port (#%top . *the-open-outports*)))
+          (cop port))))
 
 (define-values
   (close-all-ports)
@@ -1323,8 +1327,8 @@
   (let-values (((string?) string?) ((string->number) string->number))
     (lambda (arg)
       (if (string? arg)
-        (let-values (((num) (string->number arg))) (if num num arg))
-        arg))))
+          (let-values (((num) (string->number arg))) (if num num arg))
+          arg))))
 
 (define-values
   (logoize)
@@ -1404,122 +1408,122 @@
                ((whoops) whoops))
     (lambda (yesno)
       (if (if are-they? (eq? yesno #t) #f)
-        (begin (show "Strings are already numbers"))
-        (if (eq? yesno #t)
-          (begin
-            (set! are-they? (#%datum . #t))
-            (set! simply-scheme:* (logoize real-*))
-            (set! simply-scheme:+ (logoize real-+))
-            (set! simply-scheme:- (logoize real--))
-            (set! simply-scheme:/ (logoize real-/))
-            (set! simply-scheme:< (logoize real-<))
-            (set! simply-scheme:<= (logoize real-<=))
-            (set! simply-scheme:= (logoize real-=))
-            (set! simply-scheme:> (logoize real->))
-            (set! simply-scheme:>= (logoize real->=))
-            (set! simply-scheme:abs (logoize-1 real-abs))
-            (set! simply-scheme:acos (logoize-1 real-acos))
-            (set! simply-scheme:asin (logoize-1 real-asin))
-            (set! simply-scheme:atan (logoize real-atan))
-            (set! simply-scheme:ceiling (logoize-1 real-ceiling))
-            (set! simply-scheme:cos (logoize-1 real-cos))
-            (set! simply-scheme:even? (logoize-1 real-even?))
-            (set! simply-scheme:exp (logoize-1 real-exp))
-            (set! simply-scheme:expt (logoize-2 real-expt))
-            (set! simply-scheme:floor (logoize-1 real-floor))
-            (set! align (#%app logoize (#%top . align)))
-            (set! simply-scheme:gcd (logoize real-gcd))
-            (set! simply-scheme:integer? (logoize-1 real-integer?))
-            (set! item
-              (lambda (n stuff) (#%app real-item (#%app maybe-num n) stuff)))
-            (set! simply-scheme:lcm (logoize real-lcm))
-            (set! simply-scheme:list-ref
-              (lambda (lst k) (real-list-ref lst (maybe-num k))))
-            (set! simply-scheme:log (logoize-1 real-log))
-            (set! simply-scheme:max (logoize real-max))
-            (set! simply-scheme:min (logoize real-min))
-            (set! simply-scheme:modulo (logoize-2 real-modulo))
-            (set! simply-scheme:negative? (logoize-1 real-negative?))
-            (set! simply-scheme:number? (logoize-1 real-number?))
-            (set! simply-scheme:odd? (logoize-1 real-odd?))
-            (set! simply-scheme:positive? (logoize-1 real-positive?))
-            (set! simply-scheme:quotient (logoize-2 real-quotient))
-            (set! simply-scheme:random (logoize real-random))
-            (set! simply-scheme:remainder (logoize-2 real-remainder))
-            (set! simply-scheme:round (logoize-1 real-round))
-            (set! simply-scheme:sin (logoize-1 real-sin))
-            (set! simply-scheme:sqrt (logoize-1 real-sqrt))
-            (set! simply-scheme:tan (logoize-1 real-tan))
-            (set! simply-scheme:truncate (logoize-1 real-truncate))
-            (set! simply-scheme:zero? (logoize-1 real-zero?))
-            (set! simply-scheme:vector-ref
-              (lambda (vec i) (real-vector-ref vec (maybe-num i))))
-            (set! simply-scheme:vector-set!
-              (lambda (vec i val) (real-vector-set! vec (maybe-num i) val)))
-            (set! simply-scheme:make-vector
-              (lambda (num . args)
-                (apply real-make-vector (cons (maybe-num num) args))))
-            (set! simply-scheme:list-ref
-              (lambda (lst i) (real-list-ref lst (maybe-num i))))
-            (set! repeated
-              (lambda (fn n) (#%app real-repeated fn (#%app maybe-num n)))))
-          (if (if (not are-they?) (not yesno) #f)
-            (begin (show "Strings are already not numbers"))
-            (if (not yesno)
+          (begin (show "Strings are already numbers"))
+          (if (eq? yesno #t)
               (begin
-                (set! are-they? (#%datum . #f))
-                (set! simply-scheme:* real-*)
-                (set! simply-scheme:+ real-+)
-                (set! simply-scheme:- real--)
-                (set! simply-scheme:/ real-/)
-                (set! simply-scheme:< real-<)
-                (set! simply-scheme:<= real-<=)
-                (set! simply-scheme:= real-=)
-                (set! simply-scheme:> real->)
-                (set! simply-scheme:>= real->=)
-                (set! simply-scheme:abs real-abs)
-                (set! simply-scheme:acos real-acos)
-                (set! simply-scheme:asin real-asin)
-                (set! simply-scheme:atan real-atan)
-                (set! simply-scheme:ceiling real-ceiling)
-                (set! simply-scheme:cos real-cos)
-                (set! simply-scheme:even? real-even?)
-                (set! simply-scheme:exp real-exp)
-                (set! simply-scheme:expt real-expt)
-                (set! simply-scheme:floor real-floor)
-                (set! align real-align)
-                (set! simply-scheme:gcd real-gcd)
-                (set! simply-scheme:integer? real-integer?)
-                (set! item real-item)
-                (set! simply-scheme:lcm real-lcm)
-                (set! simply-scheme:list-ref real-list-ref)
-                (set! simply-scheme:log real-log)
-                (set! simply-scheme:max real-max)
-                (set! simply-scheme:min real-min)
-                (set! simply-scheme:modulo real-modulo)
-                (set! simply-scheme:odd? real-odd?)
-                (set! simply-scheme:quotient real-quotient)
-                (set! simply-scheme:random real-random)
-                (set! simply-scheme:remainder real-remainder)
-                (set! simply-scheme:round real-round)
-                (set! simply-scheme:sin real-sin)
-                (set! simply-scheme:sqrt real-sqrt)
-                (set! simply-scheme:tan real-tan)
-                (set! simply-scheme:truncate real-truncate)
-                (set! simply-scheme:zero? real-zero?)
-                (set! simply-scheme:positive? real-positive?)
-                (set! simply-scheme:negative? real-negative?)
-                (set! simply-scheme:number? real-number?)
-                (set! simply-scheme:vector-ref real-vector-ref)
-                (set! simply-scheme:vector-set! real-vector-set!)
-                (set! simply-scheme:make-vector real-make-vector)
-                (set! simply-scheme:list-ref real-list-ref)
-                (set! item real-item)
-                (set! repeated real-repeated))
-              (begin (whoops "Strings-are-numbers: give a #t or a #f"))))))
+                (set! are-they? (#%datum . #t))
+                (set! simply-scheme:* (logoize real-*))
+                (set! simply-scheme:+ (logoize real-+))
+                (set! simply-scheme:- (logoize real--))
+                (set! simply-scheme:/ (logoize real-/))
+                (set! simply-scheme:< (logoize real-<))
+                (set! simply-scheme:<= (logoize real-<=))
+                (set! simply-scheme:= (logoize real-=))
+                (set! simply-scheme:> (logoize real->))
+                (set! simply-scheme:>= (logoize real->=))
+                (set! simply-scheme:abs (logoize-1 real-abs))
+                (set! simply-scheme:acos (logoize-1 real-acos))
+                (set! simply-scheme:asin (logoize-1 real-asin))
+                (set! simply-scheme:atan (logoize real-atan))
+                (set! simply-scheme:ceiling (logoize-1 real-ceiling))
+                (set! simply-scheme:cos (logoize-1 real-cos))
+                (set! simply-scheme:even? (logoize-1 real-even?))
+                (set! simply-scheme:exp (logoize-1 real-exp))
+                (set! simply-scheme:expt (logoize-2 real-expt))
+                (set! simply-scheme:floor (logoize-1 real-floor))
+                (set! align (#%app logoize (#%top . align)))
+                (set! simply-scheme:gcd (logoize real-gcd))
+                (set! simply-scheme:integer? (logoize-1 real-integer?))
+                (set! item
+                      (lambda (n stuff) (#%app real-item (#%app maybe-num n) stuff)))
+                (set! simply-scheme:lcm (logoize real-lcm))
+                (set! simply-scheme:list-ref
+                      (lambda (lst k) (real-list-ref lst (maybe-num k))))
+                (set! simply-scheme:log (logoize-1 real-log))
+                (set! simply-scheme:max (logoize real-max))
+                (set! simply-scheme:min (logoize real-min))
+                (set! simply-scheme:modulo (logoize-2 real-modulo))
+                (set! simply-scheme:negative? (logoize-1 real-negative?))
+                (set! simply-scheme:number? (logoize-1 real-number?))
+                (set! simply-scheme:odd? (logoize-1 real-odd?))
+                (set! simply-scheme:positive? (logoize-1 real-positive?))
+                (set! simply-scheme:quotient (logoize-2 real-quotient))
+                (set! simply-scheme:random (logoize real-random))
+                (set! simply-scheme:remainder (logoize-2 real-remainder))
+                (set! simply-scheme:round (logoize-1 real-round))
+                (set! simply-scheme:sin (logoize-1 real-sin))
+                (set! simply-scheme:sqrt (logoize-1 real-sqrt))
+                (set! simply-scheme:tan (logoize-1 real-tan))
+                (set! simply-scheme:truncate (logoize-1 real-truncate))
+                (set! simply-scheme:zero? (logoize-1 real-zero?))
+                (set! simply-scheme:vector-ref
+                      (lambda (vec i) (real-vector-ref vec (maybe-num i))))
+                (set! simply-scheme:vector-set!
+                      (lambda (vec i val) (real-vector-set! vec (maybe-num i) val)))
+                (set! simply-scheme:make-vector
+                      (lambda (num . args)
+                        (apply real-make-vector (cons (maybe-num num) args))))
+                (set! simply-scheme:list-ref
+                      (lambda (lst i) (real-list-ref lst (maybe-num i))))
+                (set! repeated
+                      (lambda (fn n) (#%app real-repeated fn (#%app maybe-num n)))))
+              (if (if (not are-they?) (not yesno) #f)
+                  (begin (show "Strings are already not numbers"))
+                  (if (not yesno)
+                      (begin
+                        (set! are-they? (#%datum . #f))
+                        (set! simply-scheme:* real-*)
+                        (set! simply-scheme:+ real-+)
+                        (set! simply-scheme:- real--)
+                        (set! simply-scheme:/ real-/)
+                        (set! simply-scheme:< real-<)
+                        (set! simply-scheme:<= real-<=)
+                        (set! simply-scheme:= real-=)
+                        (set! simply-scheme:> real->)
+                        (set! simply-scheme:>= real->=)
+                        (set! simply-scheme:abs real-abs)
+                        (set! simply-scheme:acos real-acos)
+                        (set! simply-scheme:asin real-asin)
+                        (set! simply-scheme:atan real-atan)
+                        (set! simply-scheme:ceiling real-ceiling)
+                        (set! simply-scheme:cos real-cos)
+                        (set! simply-scheme:even? real-even?)
+                        (set! simply-scheme:exp real-exp)
+                        (set! simply-scheme:expt real-expt)
+                        (set! simply-scheme:floor real-floor)
+                        (set! align real-align)
+                        (set! simply-scheme:gcd real-gcd)
+                        (set! simply-scheme:integer? real-integer?)
+                        (set! item real-item)
+                        (set! simply-scheme:lcm real-lcm)
+                        (set! simply-scheme:list-ref real-list-ref)
+                        (set! simply-scheme:log real-log)
+                        (set! simply-scheme:max real-max)
+                        (set! simply-scheme:min real-min)
+                        (set! simply-scheme:modulo real-modulo)
+                        (set! simply-scheme:odd? real-odd?)
+                        (set! simply-scheme:quotient real-quotient)
+                        (set! simply-scheme:random real-random)
+                        (set! simply-scheme:remainder real-remainder)
+                        (set! simply-scheme:round real-round)
+                        (set! simply-scheme:sin real-sin)
+                        (set! simply-scheme:sqrt real-sqrt)
+                        (set! simply-scheme:tan real-tan)
+                        (set! simply-scheme:truncate real-truncate)
+                        (set! simply-scheme:zero? real-zero?)
+                        (set! simply-scheme:positive? real-positive?)
+                        (set! simply-scheme:negative? real-negative?)
+                        (set! simply-scheme:number? real-number?)
+                        (set! simply-scheme:vector-ref real-vector-ref)
+                        (set! simply-scheme:vector-set! real-vector-set!)
+                        (set! simply-scheme:make-vector real-make-vector)
+                        (set! simply-scheme:list-ref real-list-ref)
+                        (set! item real-item)
+                        (set! repeated real-repeated))
+                      (begin (whoops "Strings-are-numbers: give a #t or a #f"))))))
       are-they?)))
 
-(strings-are-numbers #t)
+(void (strings-are-numbers #t))
 
 (provide (except-out (all-from-out racket/base)
                      *
@@ -1576,11 +1580,11 @@
          
          ;; Provide the trace libraries
          (all-from-out trace)
-
+         
          *the-open-inports*
          *the-open-outports*
-
-
+         
+         
          ;; The rest of these are the bindings that are defined
          ;; in this language module.
          accumulate
