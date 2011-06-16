@@ -9,4 +9,4 @@
 (define repositories (list "4.x"))
 (define compile-omit-paths (list "private" "make-distribution.rkt"))
 (define tools (list (list "tool.rkt")))
-(define tool-names (list "Simply Scheme")))
+(define tool-names (list "Simply Scheme"))
