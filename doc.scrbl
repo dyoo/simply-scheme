@@ -1,185 +1,227 @@
 #lang scribble/manual
 
+@(require planet/scribble
+          planet/version
+          planet/resolver
+          scribble/eval
+          racket/sandbox
+          (for-label (this-package-in main)))
+
+@(define my-evaluator
+   (call-with-trusted-sandbox-configuration 
+    (lambda ()
+      (parameterize ([sandbox-output 'string]
+                     [sandbox-error-output 'string])
+        (make-evaluator 
+         'racket/base
+         #:requires
+         (list (resolve-planet-path `(planet , (this-package-version-symbol main)))))))))
+
+
 @title{Simply Scheme Support Definitions}
 @author+email["Danny Yoo" "dyoo@cs.wpi.edu"]
 
-This collection adds a  _Simply Scheme_ teaching language into
-DrScheme called _Simply Scheme_ and is used in the textbook:
+@section{Introduction}
 
+This library adds a @link["http://www.eecs.berkeley.edu/~bh/ss-toc2.html"]{Simply Scheme}
+teaching language into DrRacket; the language is used in the textbook:
+
+@verbatim{
     Simply Scheme / Introducing Computer Science, Second Edition
     Brian Harvey and Matthew Wright
     MIT Press, 1999
-    http://www.cs.berkeley.edu/~bh/simply-toc.html
+    http://www.cs.berkeley.edu/~bh/ss-toc2.html
+}
+    
+The original source of these programs can be found from the FTP site at    @url{ftp://ftp.cs.berkeley.edu/pub/scheme}.  The definitions in this library 
+should correspond to those in
+@filepath{simply.scm} version 3.13 (8/11.98).
 
 
-The original source of these programs can be found from the FTP site:
+@section{Quick Start}
 
-    ftp://ftp.cs.berkeley.edu/pub/scheme
+Although we use these definitions from switching the DrRacket language level to Simply Scheme,
+this library can also be easily used as a @litchar{#lang} language.
 
-These definitions can also be required by using:
+For example, if your DrRacket language level has been set to
+@emph{Determine langauge from source}, then the following example should run without
+any trouble:
 
-    (require (planet "simply-scheme.ss" ("dyoo" "simply-scheme.plt")))
-
-The definitions in _simply-scheme.ss_ should correspond to those in
-simply.scm version 3.13 (8/11.98).
-
-----------------------------------------------------------------------
-
-One distinguishing feature of this language is the abstraction of
-numbers.  Strings are also treated as numbers by the arithmetic
-operators:
-
-    (+ "40" 2) ==> 42
-
-This can be enabled or disabled by using _strings-are-numbers_:
-
-> (strings-are-numbers bool)
-If bool is set to #t, strings will be treated as numbers, and the
-arithmetic operators will be overloaded to work with strings.  If bool
-is set to #f, strings will not be treated as numbers.
+@codeblock|{
+#lang planet dyoo/simply-scheme:2
+(se (butlast (bf "this"))
+    "world")
+}|   
+           
 
 
-----------------------------------------------------------------------
-
-Differences from the book and things to fix
 
 
-FIXME: the other helper libraries haven't been mapped yet. (things like
-functions.scm would be nice to have as a library.)
-
-----------------------------------------------------------------------
-Table of Scheme Primitives by Category
+@section{Table of Scheme Primitives by Category}
 
 (Primitives with a '*' are not part of standard Scheme)
 
-Words and Sentences
-    appearances*
-    before?*
-    butfirst (bf)*
-    butlast (bl)*
-    count*
-    empty?*
-    equal?
-    first*
-    item*
-    last*
-    member?*
-    quote
-    sentence (se)*
-    sentence?*
-    word*
-    word?*
+@subsection{Words and Sentences}
+@itemlist[
+          appearances*
+          before?*
+          butfirst (bf)*
+          butlast (bl)*
+          count*
+          empty?*
+          equal?
+          first*
+          item*
+          last*
+          member?*
+          quote
+          sentence (se)*
+          sentence?*
+          word*
+          word?*
+          ]
 
-Lists
-    append
-    assoc
-    car
-    cdr
-    c...r
-    cons
-    filter*
-    for-each
-    length
-    list
-    list?
-    list-ref
-    map
-    member
-    null?
-    reduce*
+@subsection{Lists}
+@itemlist[
+          append
+          assoc
+          car
+          cdr
+          c...r
+          cons
+          filter*
+          for-each
+          length
+          list
+          list?
+          list-ref
+          map
+          member
+          null?
+          reduce*
+          ]
 
-Trees
-    children*
-    datum*
-    make-node*
 
-Arithmetic
-    +, -, *, /
-    <, <=, =, >, >=
-    abs
-    ceiling
-    cos
-    even?
-    expt
-    floor
-    integer?
-    log
-    max
-    min
-    number?
-    odd?
-    quotient
-    random
-    remainder
-    round
-    sin
-    sqrt
+@subsection{Trees}
+@itemlist[
+          children*
+          datum*
+          make-node*
+          ]
 
-True and False
-    and
-    boolean
-    cond
-    if
-    not
-    or
 
-Variables
-    define
-    let
+@subsection{Arithmetic}
+@itemlist[
+          +, -, *, /
+           <, <=, =, >, >=
+           abs
+           ceiling
+           cos
+           even?
+           expt
+           floor
+           integer?
+           log
+           max
+           min
+           number?
+           odd?
+           quotient
+           random
+           remainder
+           round
+           sin
+           sqrt
+           ]
 
-Vectors
-    list->vector
-    make-vector
-    vector
-    vector?
-    vector-length
-    vector->list
-    vector-ref
-    vector-set!
+@subsection{True and False}
+@itemlist[
+          and
+          boolean
+          cond
+          if
+          not
+          or
+          ]
 
-Procedures
-    apply
-    lambda
-    procedure?
+@subsection{Variables}
+@itemlist[
+          define
+           let
+           ]
 
-Higher-Order Procedures
-    accumulate*
-    every*
-    filter*
-    for-each
-    keep*
-    map
-    reduce*
-    repeated*
 
-Control
-    begin
-    error
-    load
-    trace
-    untrace
+@subsection{Vectors}
+@itemlist[
+          list->vector
+          make-vector
+          vector
+          vector?
+          vector-length
+          vector->list
+          vector-ref
+          vector-set!
+          ]
 
-Input / Output
-    align*
-    display
-    newline
-    read
-    read-line*
-    read-string*
-    show*
-    show-line*
-    write
 
-Files and Ports
-    close-all-ports*
-    close-input-port
-    close-output-port
-    eof-object?
-    open-input-file
-    open-output-file
+@subsection{Procedures}
 
-----------------------------------------------------------------------
+@itemlist[
+          apply
+          lambda
+          procedure?
+          ]
 
+@subsection{Higher-Order Procedures}
+@itemlist[
+          accumulate*
+          every*
+          filter*
+          for-each
+          keep*
+          map
+          reduce*
+          repeated*
+          ]
+
+
+@subsection{Control}
+@itemlist[
+          begin
+           error
+           load
+           trace
+           untrace
+           ]
+
+
+@subsection{Input / Output}
+@itemlist[
+          align*
+          display
+          newline
+          read
+          read-line*
+          read-string*
+          show*
+          show-line*
+          write
+          ]
+
+@subsection{Files and Ports}
+@itemlist[
+          close-all-ports*
+          close-input-port
+          close-output-port
+          eof-object?
+          open-input-file
+          open-output-file
+          ]
+
+
+
+@section{Primitives}
+    
 Alphabetical Table of Scheme Primitives
 
 > '
@@ -515,12 +557,41 @@ Print the argument in machine-readable form.
 
 
 
-Thanks
-======
+
+@section{Deviations from plain @rackmodname[racket]}
+@subsection{Strings are numbers}
+
+One distinguishing feature of this language is the abstraction of
+numbers.  Strings are also treated as numbers by the arithmetic
+operators:
+@interaction[#:eval my-evaluator
+                    (+ "40" 2)]
+
+
+This can be enabled or disabled by using _strings-are-numbers_:
+
+> (strings-are-numbers bool)
+If bool is set to #t, strings will be treated as numbers, and the
+arithmetic operators will be overloaded to work with strings.  If bool
+is set to #f, strings will not be treated as numbers.
+
+
+
+
+
+@section{Differences from the book and things to fix}
+
+FIXME: the other helper libraries haven't been mapped yet. (things like
+functions.scm would be nice to have as a library.)
+
+
+
+
+@section{Thanks!}
 
 Thanks to my professors at UC Berkeley, especially Brian Harvey and
 Dan Garcia.  Yes, CS61A was the best computer science class I've taken.
 
 Thanks to Reid Oda for catching a very ugly bug involving namespaces,
 and Matthew Flatt for telling me how to fix it.  See 
-http://list.cs.brown.edu/pipermail/plt-scheme/2007-February/016387.html
+@url{http://list.cs.brown.edu/pipermail/plt-scheme/2007-February/016387.html}.
