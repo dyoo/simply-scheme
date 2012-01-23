@@ -1,8 +1,8 @@
 #lang setup/infotab
 (define name "Simply Scheme")
 (define blurb '("Definitions to support programs written for Simply Scheme."))
-(define release-notes '((p "Fix for the missing documentation link.")))
-(define version "2.1")
+(define release-notes '((p "Bug fix: Using racket/trace rather than erroneously loading the trace library.")))
+(define version "2.2")
 (define categories '(misc))
 (define primary-file "main.rkt")
 (define required-core-version "5.1.1")
