@@ -7,7 +7,7 @@
 ;; I (dyoo) wrote in private/, but I'm hand-massaging some of
 ;; the definitions here to support things like trace.
 
-(require trace)
+(require (only-in racket/trace trace untrace))
 
 
 (define simply-scheme:* *)
@@ -1579,7 +1579,7 @@
                      zero?)
          
          ;; Provide the trace libraries
-         (all-from-out trace)
+         trace untrace
          
          *the-open-inports*
          *the-open-outports*
