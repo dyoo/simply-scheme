@@ -7,7 +7,7 @@
 (define primary-file "main.rkt")
 (define required-core-version "5.1.1")
 (define repositories (list "4.x"))
-(define scribblings '(("manual.scrbl")))
+(define scribblings '(("simply-scheme-manual.scrbl")))
 
 ;; Ignore these paths: they're here just for historical curiosity.
 (define compile-omit-paths (list "private" "make-distribution.rkt"))
